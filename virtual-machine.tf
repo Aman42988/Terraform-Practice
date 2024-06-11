@@ -20,7 +20,7 @@ provider "azurerm" {
 
 # Resource Group
 resource "azurerm_resource_group" "myrg" {
-  name     = "myrg-1"
+  name     = "1.myrg-1"
   location = "East US"
 }
 
