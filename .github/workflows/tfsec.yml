@@ -17,6 +17,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Install TFLint
+        run: |
+          wget https://github.com/terraform-linters/tflint/releases/download/v0.29.3/tflint_linux_amd64.zip
+          unzip tflint_linux_amd64.zip
+          sudo mv tflint /usr/local/bin/
+          rm tflint_linux_amd64.zip
+
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
         with:
