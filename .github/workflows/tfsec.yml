@@ -37,4 +37,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
     - name: Run TFLint
-      run: tflint -recursive .
+      run: tflint --recursive .
