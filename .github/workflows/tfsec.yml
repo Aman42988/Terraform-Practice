@@ -37,4 +37,11 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
     - name: Run TFLint
-      run: tflint -f compact --recursive --force
+      run: |
+       tflint -f compact --recursive --force 2>&1 | tee tflint-out.txt
+       if [ ! -s tflint-out.txt ]; then
+         echo "TFLint run has no findings" >> tflint-out.txt
+       else
+        sed -i '1i*************' tflint-out.txt
+        sed -i '1iTFLint Report' tflint-out.txt
+       fi
