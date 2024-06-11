@@ -17,44 +17,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Run TFLint
-        id: tflint
-        run: |
-          tflint -f compact --recursive --force 2>&1 | tee tflint-out.txt
-          if [ ! -s tflint-out.txt ]; then
-            echo "TFLint run has no findings" >> tflint-out.txt
-          else
-            sed -i '1i*************' tflint-out.txt
-            sed -i '1iTFLint Report' tflint-out.txt
-          fi
+      - name: Set up TFLint
+        uses: terraform-linters/setup-tflint@v4
 
-      - name: TFLint Output in PR
-        uses: marocchino/sticky-pull-request-comment@v2
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
         with:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-          header: tflint-outputs
-          recreate: true
-          path: tflint-out.txt
+          terraform_version: ">= 1.0.0"
 
-      - name: Checkov Scan
-        id: checkov_scan
-        run: |
-          mkdir reports
-          checkov -d . --skip-path ./.github --skip-path ./test -s -o cli -o junitxml --output-file-path ./reports
+      - name: TFLint
+        run: tflint
 
-      - name: Display Checkov Scan Report in Workflow
-        id: checkov-scan-report
-        uses: dorny/test-reporter@v1
-        if: ${{ steps.checkov_scan.outcome == 'success' }}
-        with:
-          fail-on-error: false
-          name: Checkov Scan Report
-          path: ./reports/results_junitxml.xml
-          reporter: java-junit
+      - name: Checkov
+        run: checkov -d .
 
-      - name: Publish Checkov Scan Report in PR
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        with:
-          junit_files: ./reports/results_junitxml.xml
-          check_name: Checkov Scan Report
-          fail_on: nothing
+      - name: Terrascan
+        run: terrascan
+
+      - name: tfsec
+        run: tfsec .
+
+      # Additional steps can be added as needed for testing or deployment
