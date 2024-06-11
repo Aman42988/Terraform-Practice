@@ -1,6 +1,5 @@
-# Terraform Block
 terraform {
-  required_version = ">= 1.0.0"
+  required_version = "= 0.15.0"  # Changed to an invalid version
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -12,27 +11,24 @@ terraform {
     }
   }
 }
-#NEW
-# Provider Block
+
 provider "azurerm" {
   features {}
 }
 
-# Resource Group
 resource "azurerm_resource_group" "myrg" {
-  name     = "1.myrg-1"
-  location = "East US"
+  name     = "myrg-1"  # Removed the invalid character "1."
+  location = "Invalid Location"  # Changed to an invalid location
 }
 
-# Virtual Network
 resource "azurerm_virtual_network" "myvnet" {
   name                = "myvnet-1"
-  address_space       = ["10.0.0.0/16"]
+  # Removed the address_space attribute to introduce a missing required attribute
+  # address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.myrg.location
   resource_group_name = azurerm_resource_group.myrg.name
 }
 
-# Subnet
 resource "azurerm_subnet" "mysubnet" {
   name                 = "mysubnet-1"
   resource_group_name  = azurerm_resource_group.myrg.name
@@ -40,7 +36,6 @@ resource "azurerm_subnet" "mysubnet" {
   address_prefixes     = ["10.0.2.0/24"]
 }
 
-# Public IP Address
 resource "azurerm_public_ip" "mypublicip" {
   name                = "mypublicip-1"
   resource_group_name = azurerm_resource_group.myrg.name
@@ -52,7 +47,6 @@ resource "azurerm_public_ip" "mypublicip" {
   }
 }
 
-# Network Interface
 resource "azurerm_network_interface" "myvmnic" {
   name                = "vmnic"
   location            = azurerm_resource_group.myrg.location
@@ -66,7 +60,6 @@ resource "azurerm_network_interface" "myvmnic" {
   }
 }
 
-# Random String Resource
 resource "random_string" "myrandom" {
   length  = 6
   upper   = false 
@@ -74,7 +67,6 @@ resource "random_string" "myrandom" {
   number  = false   
 }
 
-# Azure Linux Virtual Machine
 resource "azurerm_linux_virtual_machine" "mylinuxvm" {
   name                = "mylinuxvm-1"
   computer_name       = "devlinux-vm1"
@@ -85,7 +77,7 @@ resource "azurerm_linux_virtual_machine" "mylinuxvm" {
   network_interface_ids = [azurerm_network_interface.myvmnic.id]
   admin_ssh_key {
     username  = "azureuser"
-    public_key = file("${path.module}/ssh-keys/terraform-azure.pub")
+    public_key = file("${path.nonexistent}/ssh-keys/terraform-azure.pub")  # Invalid path
   }
   os_disk {
     name              = "osdisk"
