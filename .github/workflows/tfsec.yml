@@ -17,10 +17,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: ">= 1.0.0"
+      # - name: Install TFLint
+      #   run: |
+      #     wget -q https://github.com/terraform-linters/tflint/releases/download/v0.30.0/tflint_linux_amd64.zip
+      #     unzip -o tflint_linux_amd64.zip
+      #     sudo mv tflint /usr/local/bin/
+      #     rm tflint_linux_amd64.zip
 
-      - name: Run Terraform checks
-        uses: accurate/terraform-lint@v1
+      # - name: Set up Terraform
+      #   uses: hashicorp/setup-terraform@v1
+      #   with:
+      #     terraform_version: ">= 1.0.0"
+
+      # - name: TFLint
+      #   run: tflint
+
+      - name: Checkov
+        run: checkov -d .
+
+      - name: Terrascan
+        run: terrascan
+
+      - name: tfsec
+        run: tfsec .
+
+      # Additional steps can be added as needed for testing or deployment
