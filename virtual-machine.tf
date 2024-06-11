@@ -12,7 +12,7 @@ terraform {
     }
   }
 }
-
+#NEW
 # Provider Block
 provider "azurerm" {
   features {}
