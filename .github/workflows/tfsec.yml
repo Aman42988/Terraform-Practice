@@ -1,4 +1,23 @@
-- name: run tflint
+name: Terraform Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform_checks:
+    name: Terraform Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run TFLint
         id: tflint
         run: |
           tflint -f compact --recursive --force 2>&1 | tee tflint-out.txt
@@ -8,10 +27,11 @@
             sed -i '1i*************' tflint-out.txt
             sed -i '1iTFLint Report' tflint-out.txt
           fi
+
       - name: TFLint Output in PR
         uses: marocchino/sticky-pull-request-comment@v2
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
           header: tflint-outputs
           recreate: true
           path: tflint-out.txt
@@ -21,6 +41,7 @@
         run: |
           mkdir reports
           checkov -d . --skip-path ./.github --skip-path ./test -s -o cli -o junitxml --output-file-path ./reports
+
       - name: Display Checkov Scan Report in Workflow
         id: checkov-scan-report
         uses: dorny/test-reporter@v1
