@@ -1,37 +1,37 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: tfsec
+name: Terraform Checks
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
-  workflow_dispatch: # Add this event for manual triggering
+    branches:
+      - main
 
 jobs:
-  tfsec:
-    name: Run tfsec sarif report
+  terraform_checks:
+    name: Terraform Checks
     runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
 
     steps:
-      - name: Clone repo
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Run tfsec
-        uses: aquasecurity/tfsec-sarif-action@21ded20e8ca120cd9d3d6ab04ef746477542a608
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
         with:
-          sarif_file: tfsec.sarif
+          terraform_version: ">= 1.0.0"
 
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          # Path to SARIF file relative to the root of the repository
-          sarif_file: tfsec.sarif
+      - name: TFLint
+        run: tflint
+
+      - name: Checkov
+        run: checkov -d .
+
+      - name: Terrascan
+        run: terrascan
+
+      - name: tfsec
+        run: tfsec .
+
+      # Additional steps can be added as needed for testing or deployment
